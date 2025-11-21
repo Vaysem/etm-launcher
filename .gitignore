@@ -6,16 +6,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+target/rust-analyzer/flycheck0
 node_modules
 dist
 dist-ssr
 *.local
-target
+target/
+!target/release/bundle/msi
 # Editor directories and files
 .vscode
 .vscode/*
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
