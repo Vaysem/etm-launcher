@@ -30,6 +30,6 @@
 
 [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [Rust](https://rust-lang.org/)
 
-![Логотип](https://dev2.com.ua/image/catalog/logo.svg)
+<img src="https://dev2.com.ua/image/catalog/logo.svg" alt="Спонсор" width="100"/>
 
 <sub>Ⓒ 2025 etm-launcher</sub></div>
