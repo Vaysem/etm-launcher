@@ -1,18 +1,21 @@
 # Logs
 logs
 *.log
+node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 target/rust-analyzer/flycheck0
-node_modules
 dist
 dist-ssr
 *.local
-target/
-!target/release/bundle/msi
+/target/
+src-tauri/target/*
+!src-tauri/target/release/*
+!src-tauri/target/release/bundle/msi/*
+
 # Editor directories and files
 .vscode
 .vscode/*
