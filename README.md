@@ -26,10 +26,10 @@
 -----------
 
 ## Застосовує Rust v1.93.0 і Tauri v2.9.3
-<center>
+<div align="center">
 
 [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [Rust](https://rust-lang.org/)
 
-![Логотип](https://raw.githubusercontent.com/Vaysem/etm-launcher/refs/heads/main/src-tauri/icons/favicon.ico?token=GHSAT0AAAAAADPYV7WDZURUHEKX3TEOASCM2JA67RA)
+![Логотип](https://dev2.com.ua/image/catalog/logo.svg)
 
-<sub>Ⓒ 2025 etm-launcher</sub></center>
+<sub>Ⓒ 2025 etm-launcher</sub></div>
