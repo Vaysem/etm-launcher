@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "etm-launcher",
+  "version": "0.1.0",
+  "identifier": "etm-launcher",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "etm-launcher",
+        "visible":false,
+        "devtools": true,
+        "width": 600,
+        "height": 400
+      }
+    ],
+    "security": {      
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi"],
+    "windows": {
+      "allowDowngrades": true,
+      "certificateThumbprint": null,
+      "digestAlgorithm": null,
+      "nsis": null,
+      "signCommand": null,
+      "timestampUrl": null,
+      "tsp": false,
+      "webviewInstallMode": {
+        "silent": true,
+        "type": "downloadBootstrapper"
+      },
+      "wix": null
+    },
+    "publisher": "ETM home software",
+    "icon": ["icons/favicon.ico"],
+    "fileAssociations":[
+      {
+        "name": "ETM Document",
+        "description": "ETM HTML Application",
+        "ext": ["etm"],
+        "role": "Viewer",
+        "rank": "Owner",
+        "mimeType": "text/html"
+      }
+    ]
+  }
+}
