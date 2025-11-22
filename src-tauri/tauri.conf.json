@@ -25,7 +25,7 @@
     "active": true,
     "targets": ["msi"],
     "publisher": "ETM home software",
-    "icon": ["icons/favicon.ico"],
+    "icon": ["icons/favicons.ico"],
     "fileAssociations":[
       {
         "name": "ETM Document",
