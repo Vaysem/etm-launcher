@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta width="450" height="360" resize="false" maximize="false" type="window"><!--resize="false" maximize="false"-->
+	<link rel="icon" href="icon.png" type="image/x-icon">
+    <title>WEB Calc</title>
+    <style>
+        :root {
+            --border-color: #ccc;
+            --operator-color: #555;
+            --equal-bg: #076;
+            --dev-func-bg: #e9ecef;
+            --radius: 12px;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fff;
+        }
+        .calculator {
+            width: 420px; 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 16px;
+        }
+        .prevent-select {
+            -ms-user-select: none;      /* IE10+ */
+            user-select: none;          /* Standard */
+        }
+        .display-area {
+            grid-column: 1 / -1;
+        }
+        .output-box {
+            background-color: #fff;
+            border: 2px solid #999;
+            border-radius: 8px;
+            padding: 5px 15px;
+            font-size: 2.2em;
+            text-align: right;
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        .main-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.1s linear;
+            font-weight: 600;
+            opacity: .8;
+        }
+        button:hover {
+            opacity: 1;
+            scale:1.05
+        }
+        button:active{
+            scale:.95
+        }
+        .digit {
+            background-color: #fff;
+            color: #333;
+        }
+        .operator, .clear-btn, .backspace-btn, .dev-func-btn {
+            background-color: #eee;
+            color: var(--operator-color);
+            white-space: nowrap;
+        }
+        .equal-btn {
+            grid-column: span 3;
+            background-color: var(--equal-bg);
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .dev-functions {
+            display: grid;
+            gap: 10px;
+            padding: 10px 15px;
+            background-color: var(--dev-func-bg);
+            border-radius: var(--radius);
+        }
+        .dev-functions h4 {
+            margin: 0;
+            font-size: 15px;
+            text-align: center;
+            color: #999;
+        }
+        .color-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .dev-functions button,.dev-functions input {
+            height: 30px;
+            padding: 0;
+        }
+        .color-group * {
+            width: 100%;
+            
+        }
+        .color-group input {
+            appearance: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            border-radius: 10px;
+            display: block;
+            padding: 0px;
+        }
+        .active{
+            color: var(--equal-bg);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="prevent-select">
+
+    <div class="calculator">
+        <div class="display-area">
+            <div id="display" class="output-box">0</div>
+        </div>
+
+        <div class="main-buttons">
+            <button class="clear-btn" onclick="clearDisplay()">AC</button>
+            <button class="backspace-btn" onclick="backspace()">&#x232B;</button>
+            <button class="operator" onclick="appendOperator('/')">/</button>
+            <button class="operator" onclick="appendOperator('*')">*</button>
+
+            <button class="digit" onclick="appendDigit('7')">7</button>
+            <button class="digit" onclick="appendDigit('8')">8</button>
+            <button class="digit" onclick="appendDigit('9')">9</button>
+            <button class="operator" onclick="appendOperator('-')">-</button>
+
+            <button class="digit" onclick="appendDigit('4')">4</button>
+            <button class="digit" onclick="appendDigit('5')">5</button>
+            <button class="digit" onclick="appendDigit('6')">6</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+
+            <button class="digit" onclick="appendDigit('1')">1</button>
+            <button class="digit" onclick="appendDigit('2')">2</button>
+            <button class="digit" onclick="appendDigit('3')">3</button>
+            <button class="digit" onclick="appendDigit('0')">0</button>
+
+            <button class="digit" onclick="appendDigit('.')">.</button>
+            <button class="equal-btn" onclick="calculate()">=</button>
+        </div>
+
+        <div class="dev-functions">
+            <h4>Web tools</h4>
+            <button class="dev-func-btn" id="convertHEX" onclick="convertBase()"><span>DEC</span>&harr;<span>HEX</span></button>
+            <button class="dev-func-btn" id="convertENTITY" onclick="convertHtmlEntities()">HTML Entities</button>
+
+            <div class="color-group">
+                <h4>color</h4>
+                <input type="color" id="colorPicker" oninput="convertColorFromPicker()">
+                <button class="dev-func-btn" id="convertCOLOR" onclick="changeColorFormat()"><span>RGB</span>&harr;<span>HEX</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const colorPicker = document.getElementById('colorPicker');
+        let currentInput = '0';
+        let operator = null;
+        let previousValue = null;
+        let waitingForNewInput = false;
+
+        let typeNumber = 'DEC';
+        let typeColor = 'HEX';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDisplay();
+        });
+
+        function updateDisplay(value = currentInput) {
+            // Заменяем точку на запятую при отображении, если это нужно для локали (хотя в коде используем точку)
+            // Но для веб-разработчика лучше оставить точку, как принято в программировании.
+            display.textContent = value;
+            
+            let chekedHEX = convertHEX.querySelectorAll('span')
+            if(typeNumber === 'DEC'){
+                chekedHEX[0].classList.add('active')
+                chekedHEX[1].classList.remove('active')
+            }else{                
+                chekedHEX[1].classList.add('active')
+                chekedHEX[0].classList.remove('active')
+            }
+            //convertHEX convertENTITY convertCOLOR
+            let chekedCOLOR = convertCOLOR.querySelectorAll('span')
+            if(typeColor === 'RGB'){
+                chekedCOLOR[0].classList.add('active')
+                chekedCOLOR[1].classList.remove('active')
+            }else{                
+                chekedCOLOR[1].classList.add('active')
+                chekedCOLOR[0].classList.remove('active')
+            }
+        }
+
+        function appendDigit(digit) {
+            
+            if (waitingForNewInput) {
+                currentInput = digit;
+                waitingForNewInput = false;
+            } else if (currentInput === '0' && digit !== '.') {
+                currentInput = digit;
+            } else if (digit === '.') {
+                if (currentInput.includes('.')) return;
+                currentInput += '.';
+            } else if (currentInput.length < 20) { // Ограничение длины
+                currentInput += digit;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(nextOperator) {
+            const inputValue = parseFloat(currentInput);
+
+            if (previousValue === null && !isNaN(inputValue)) {
+                previousValue = inputValue;
+            } else if (operator) {
+                // Если оператор уже есть, и мы вводим новый, сначала вычисляем
+                calculate(false);
+                previousValue = parseFloat(currentInput);
+            }
+
+            waitingForNewInput = true;
+            operator = nextOperator;
+            updateDisplay(currentInput); // Обновляем, чтобы убрать курсор
+        }
+
+        function calculate(showResult = true) {
+            const inputValue = parseFloat(currentInput);
+
+            if (previousValue === null || operator === null || isNaN(inputValue)) {
+                return;
+            }
+
+            let result;
+            switch (operator) {
+                case '+':
+                    result = previousValue + inputValue;
+                    break;
+                case '-':
+                    result = previousValue - inputValue;
+                    break;
+                case '*':
+                    result = previousValue * inputValue;
+                    break;
+                case '/':
+                    result = inputValue === 0 ? 'Ошибка: Деление на 0' : previousValue / inputValue;
+                    break;
+                default:
+                    return;
+            }
+            
+            if (typeof result === 'string') {
+                currentInput = result;
+                previousValue = null;
+                operator = null;
+            } else {
+                // Ограничиваем точность
+                currentInput = parseFloat(result.toFixed(10)).toString(); 
+                previousValue = result; // Для цепочки вычислений
+            }
+
+            if (showResult) {
+                waitingForNewInput = true;
+                operator = null; // Сбрасываем оператор после "="
+            } else {
+                // Если это промежуточное вычисление
+                waitingForNewInput = true;
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = null;
+            previousValue = null;
+            waitingForNewInput = false;
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (waitingForNewInput) return;
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '' || currentInput === '-') {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function convertBase() {
+            const value = currentInput;
+            let result = '';
+
+            if (typeNumber !== 'HEX') {
+                // DEC -> HEX
+                const num = parseInt(value, 10);
+                if (!isNaN(num)) {
+                    result = num.toString(16).toUpperCase();
+                    typeNumber = 'HEX'
+                } else {
+                    result = 'Ошибка: Не число';
+                }
+            } else {
+                // HEX -> DEC
+                const num = parseInt(value, 16);
+                if (!isNaN(num)) {
+                    result = num.toString(10);
+                    typeNumber = 'DEC'
+                } else {
+                    result = 'Ошибка: Не HEX';
+                }
+            }
+            
+            if (result.startsWith('Ошибка')) {
+                currentInput = result;
+            } else {
+                currentInput = result;
+                // После конвертации, следующий ввод должен начинать новое число
+                waitingForNewInput = true; 
+            }
+            updateDisplay();
+        }
+
+        function convertHtmlEntities() {
+            let result = '';
+            const value = prompt("Конвертации в HTML сущность","")
+            if(value){
+                result = value.replace(/&/g, '&amp;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;')
+                                .replace(/'/g, '&#39;');
+                
+                
+                currentInput = result;
+                waitingForNewInput = true;
+                updateDisplay();
+            }
+        }
+
+        function toHex(c) {
+            const hex = c.toString(16);
+            return hex.length === 1 ? "0" + hex : hex;
+        }
+
+        function shorthandHex(hex) {
+            hex = hex.substring(1);
+            if (hex[0] === hex[1] && hex[2] === hex[3] && hex[4] === hex[5]) {
+                return `#${hex[0]}${hex[2]}${hex[4]}`.toUpperCase();
+            }
+            return `#${hex}`.toUpperCase();
+        }
+
+        function changeColorFormat(){
+            if(typeColor === 'RGB'){
+                convertRgbToHex()
+                typeColor = 'HEX'
+            }else{
+                convertHexToRgb()
+                typeColor = 'RGB'
+            }
+            updateDisplay();
+        }
+
+        function convertRgbToHex() {
+            const rgbMatch = currentInput.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/i);
+            
+            if (!rgbMatch) {
+                currentInput = 'Ошибка: Не RGB';
+                updateDisplay();
+                return;
+            }
+
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            
+            const fullHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+            const hex = shorthandHex(fullHex);
+            
+            currentInput = fullHex === hex ? hex : `${fullHex} (${hex})`;
+
+            colorPicker.value = fullHex;
+            waitingForNewInput = true;
+        }
+
+        function convertHexToRgb() {
+            let hex = currentInput.trim().replace(/^#/, '');
+            
+            if (hex.length === 3) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            }
+            
+            if (hex.length !== 6 || !/^[0-9a-fA-F]{6}$/.test(hex)) {
+                currentInput = 'Ошибка: Не HEX';
+                updateDisplay();
+                return;
+            }
+
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+
+            const rgb = `rgb(${r}, ${g}, ${b})`;
+            
+            currentInput = rgb;
+            colorPicker.value = `#${hex}`;
+            waitingForNewInput = true;
+        }
+        
+        colorPicker.onclick = e => {      
+            convertColorFromPicker()
+        }
+        function convertColorFromPicker() {
+            const hex = colorPicker.value.toUpperCase();
+            const shortHex = shorthandHex(hex);
+            
+            waitingForNewInput = true;
+            if(typeColor === 'HEX'){
+                currentInput = hex === shortHex ? shortHex : `${hex} (${shortHex})`;
+            }else{
+                currentInput = hex
+                convertHexToRgb()
+            }
+            updateDisplay();
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+
+            if (key >= '0' && key <= '9') {
+                appendDigit(key);
+            } else if (key === '.' || key === ',') {
+                appendDigit('.');
+            } else if (['+', '-', '*', '/'].includes(key)) {
+                appendOperator(key);
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+                event.preventDefault();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
