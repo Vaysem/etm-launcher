@@ -70,7 +70,7 @@
             scale:.95
         }
         .digit {
-            background-color: #fff;
+            background-color: #ffe;
             color: #333;
         }
         .operator, .clear-btn, .backspace-btn, .dev-func-btn {
